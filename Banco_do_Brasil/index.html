@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="icon" href="assets/logo.jpg" type="image/x-icon" />
   <title>Dashboard</title>
 </head>
-
 <body>
   <div class="container">
     <div class="left-side">
@@ -59,9 +58,12 @@
         <div class="progress-bar">
           <div class="progress-wrapper">
             <progress id="barraProgresso" value="0" max="100"></progress>
-            <div><img class="progressImagens presente" data-index="0" src="assets/balao_surpresa.png" alt="Presente"></div>
-            <div><img class="progressImagens presente" data-index="1" src="assets/balao_surpresa.png" alt="Presente"></div>
-            <div><img class="progressImagens presente" data-index="2" src="assets/balao_surpresa.png" alt="Presente"></div>
+            <div><img class="progressImagens presente" data-index="0" src="assets/balao_surpresa.png" alt="Presente">
+            </div>
+            <div><img class="progressImagens presente" data-index="1" src="assets/balao_surpresa.png" alt="Presente">
+            </div>
+            <div><img class="progressImagens presente" data-index="2" src="assets/balao_surpresa.png" alt="Presente">
+            </div>
           </div>
         </div>
       </div>
@@ -132,334 +134,11 @@
           </div>
         </div>
       </div>
-
       <div class="grafico">
         <img src="assets/Grafico.jpeg" alt="">
       </div>
     </div>
   </div>
-
-  <script>
-    // Configurações do sistema
-    const config = {
-      incremento: 20,
-      marcos: [20, 50, 75, 100],
-      presenteMarcos: [20, 50, 75],
-      recompensas: [
-        { img: 'assets/prata.png', mensagem: 'Você ganhou um badge de Prata!' },
-        { img: 'assets/ouro.png', mensagem: 'Você ganhou um badge de Ouro!' },
-        { img: 'assets/balao_icon.png', mensagem: 'Você desbloqueou uma recompensa especial!' }
-      ]
-    };
-
-    // Estado da aplicação
-    const state = {
-      progressoAtual: 0,
-      tarefasConcluidas: Array(5).fill(false),
-      presentesDesbloqueados: [false, false, false],
-      presentesAbertos: [false, false, false],
-      semanaAtual: 0,
-      semanasCompletas: 0,
-      tarefasConcluidasNaSemana: 0
-    };
-
-    // Lista de tarefas por semana
-    const tarefasPorSemana = [
-      [
-        "Implementar login",
-        "Criar API de usuários",
-        "Estilizar dashboard",
-        "Configurar banco de dados",
-        "Desenvolver sistema de notificações"
-      ],
-      [
-        "Refatorar módulo de autenticação",
-        "Otimizar consultas ao banco",
-        "Implementar testes unitários",
-        "Criar documentação da API",
-        "Deploy em ambiente de staging"
-      ],
-      [
-        "Desenvolver feature X",
-        "Corrigir bugs críticos",
-        "Atualizar dependências",
-        "Implementar CI/CD",
-        "Revisão de código em pares"
-      ]
-    ];
-
-    // Elementos DOM
-    const progresso = document.getElementById('barraProgresso');
-    const presentes = document.querySelectorAll('.presente');
-    const weeklyProgressIcon = document.getElementById('weekly-progress-icon');
-
-    // Carrega progresso salvo
-    function carregarProgresso() {
-      const salvo = localStorage.getItem('progressoBB');
-      if (salvo) {
-        const dados = JSON.parse(salvo);
-        state.semanasCompletas = dados.semanasCompletas || 0;
-        state.semanaAtual = dados.semanaAtual || 0;
-        atualizarIconeHeader();
-      }
-    }
-
-    // Salva progresso
-    function salvarProgresso() {
-      localStorage.setItem('progressoBB', JSON.stringify({
-        semanasCompletas: state.semanasCompletas,
-        semanaAtual: state.semanaAtual
-      }));
-    }
-
-    // Inicialização
-    document.addEventListener('DOMContentLoaded', () => {
-      carregarProgresso();
-      presentes.forEach((presente, index) => {
-        presente.addEventListener('click', () => abrirPresente(index));
-      });
-    });
-
-    function toggleDropdown(dropdownId) {
-      const dropdown = document.getElementById(dropdownId);
-      const container = dropdown.closest('.dropdown-container');
-
-      document.querySelectorAll('.dropdown-container').forEach(item => {
-        if (item !== container) {
-          item.classList.remove('dropdown-active');
-        }
-      });
-
-      container.classList.toggle('dropdown-active');
-
-      document.addEventListener('click', (e) => {
-        if (!container.contains(e.target)) {
-          container.classList.remove('dropdown-active');
-        }
-      }, { once: true });
-    }
-
-    function atualizarPresentes() {
-      presentes.forEach((presente, index) => {
-        if (state.progressoAtual >= config.presenteMarcos[index] && !state.presentesAbertos[index]) {
-          if (!state.presentesDesbloqueados[index]) {
-            presente.src = "assets/presente_bloqueado.png";
-            presente.classList.add('presente-desbloqueado');
-            state.presentesDesbloqueados[index] = true;
-          }
-        } else if (state.presentesAbertos[index]) {
-          presente.src = config.recompensas[index].img;
-          presente.classList.remove('presente-desbloqueado');
-        }
-      });
-    }
-
-    function abrirPresente(index) {
-      if (state.presentesDesbloqueados[index] && !state.presentesAbertos[index]) {
-        state.presentesAbertos[index] = true;
-        const recompensa = config.recompensas[index];
-        
-        presentes[index].src = recompensa.img;
-        presentes[index].classList.remove('presente-desbloqueado');
-        
-        const confettiConfig = {
-          particleCount: 150,
-          spread: 70,
-          origin: { 
-            x: (config.presenteMarcos[index] / 100) * 0.8 + 0.1,
-            y: 0.6
-          }
-        };
-        
-        if (index === 1) {
-          confettiConfig.particleCount = 200;
-          confettiConfig.spread = 100;
-          confettiConfig.colors = ['#FFD700', '#C0C0C0', '#FFFFFF'];
-        }
-        
-        confetti(confettiConfig);
-        
-        Swal.fire({
-          title: 'Presente aberto! 🎁',
-          text: recompensa.mensagem,
-          imageUrl: recompensa.img,
-          imageWidth: 150,
-          imageHeight: 150,
-          imageAlt: 'Recompensa',
-          confirmButtonText: 'Obrigado!'
-        });
-        
-        atualizarPresentes();
-      } else if (!state.presentesDesbloqueados[index]) {
-        Swal.fire({
-          title: 'Continue progredindo!',
-          text: `Complete mais ${config.presenteMarcos[index] - state.progressoAtual}% para desbloquear este presente.`,
-          icon: 'info',
-          confirmButtonText: 'Vamos lá!'
-        });
-      } else if (state.presentesAbertos[index]) {
-        const recompensa = config.recompensas[index];
-        Swal.fire({
-          title: 'Recompensa já resgatada',
-          text: recompensa.mensagem,
-          imageUrl: recompensa.img,
-          imageWidth: 150,
-          imageHeight: 150,
-          imageAlt: 'Recompensa',
-          confirmButtonText: 'Entendi'
-        });
-      }
-    }
-
-    function concluirTarefa(checkbox, index) {
-      if (state.tarefasConcluidas[index]) {
-        Swal.fire('Tarefa já concluída!', 'Esta tarefa já foi finalizada anteriormente.', 'info');
-        checkbox.checked = true;
-        return;
-      }
-
-      Swal.fire({
-        title: 'Confirmar conclusão',
-        text: 'Deseja marcar esta tarefa como concluída?',
-        imageUrl: 'assets/Mascote_feliz.png',
-        imageWidth: 200,
-        imageHeight: 250,
-        imageAlt: 'Mascote feliz',
-        showCancelButton: true,
-        confirmButtonColor: '#0571d3',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sim, concluir!',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          state.tarefasConcluidas[index] = true;
-          state.tarefasConcluidasNaSemana++;
-          state.progressoAtual += config.incremento;
-          
-          checkbox.disabled = true;
-          progresso.value = state.progressoAtual;
-          atualizarPresentes();
-          verificarMarcos();
-          
-          if (state.tarefasConcluidasNaSemana === tarefasPorSemana[state.semanaAtual].length) {
-            state.semanasCompletas++;
-            atualizarIconeHeader();
-            salvarProgresso();
-            celebrarConclusaoSemanal();
-          }
-        } else {
-          Swal.fire({
-            title: 'Ops! 😢',
-            text: 'Você realmente deseja cancelar esta tarefa?',
-            imageUrl: 'assets/Mascote-triste.png',
-            imageWidth: 200,
-            imageHeight: 250,
-            imageAlt: 'Mascote triste',
-            showCancelButton: true,
-            confirmButtonColor: '#0571d3',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Não, quero concluir!',
-            cancelButtonText: 'Sim, cancelar'
-          }).then((secondResult) => {
-            if (secondResult.isConfirmed) {
-              checkbox.checked = true;
-              concluirTarefa(checkbox, index);
-            } else {
-              checkbox.checked = false;
-            }
-          });
-        }
-      });
-    }
-
-    function verificarMarcos() {
-      config.marcos.forEach(marco => {
-        if (state.progressoAtual >= marco && state.progressoAtual - config.incremento < marco) {
-          let confettiConfig = {
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 }
-          };
-          
-          if (marco >= 75) {
-            confettiConfig.particleCount = 150;
-            confettiConfig.colors = ['#FFD700', '#FFFFFF', '#0571d3'];
-          }
-          
-          confetti(confettiConfig);
-          
-          Swal.fire({
-            title: 'Marco alcançado! 🏆',
-            html: `<p>Você atingiu <strong>${marco}%</strong> do seu objetivo!</p>
-                  <p style="font-size: 0.9em; margin-top: 10px;">Continue assim!</p>`,
-            icon: 'success',
-            confirmButtonColor: '#0571d3',
-            confirmButtonText: 'Rumo aos 100%!'
-          });
-        }
-      });
-    }
-
-    function atualizarIconeHeader() {
-      const porcentagemTotal = Math.min(state.semanasCompletas * 20, 100);
-      const icone = `logo_${porcentagemTotal}%.png`;
-      
-      weeklyProgressIcon.src = `assets/${icone}`;
-      weeklyProgressIcon.alt = `Progresso: ${porcentagemTotal}%`;
-      document.querySelector('.weekly-progress').setAttribute('data-progress', `${porcentagemTotal}% concluído`);
-      
-      weeklyProgressIcon.classList.add('destaque-icone');
-      setTimeout(() => {
-        weeklyProgressIcon.classList.remove('destaque-icone');
-      }, 1000);
-    }
-
-    function celebrarConclusaoSemanal() {
-      confetti({
-        particleCount: 300,
-        spread: 100,
-        origin: { y: 0.3 }
-      });
-      
-      Swal.fire({
-        title: 'Semana concluída! 🎉',
-        html: `<p>Parabéns! Você completou todas as tarefas desta semana!</p>
-              <p>Semanas completas: <strong>${state.semanasCompletas}/5</strong></p>
-              <img src="assets/logo_${Math.min(state.semanasCompletas * 20, 100)}%.png" 
-                   style="width: 100px; margin: 20px auto;">`,
-        confirmButtonText: 'Iniciar nova semana!',
-        confirmButtonColor: '#0571d3'
-      }).then(() => {
-        state.semanaAtual = (state.semanaAtual + 1) % tarefasPorSemana.length;
-        resetarTarefas();
-      });
-    }
-
-    function resetarTarefas() {
-      state.tarefasConcluidas = Array(5).fill(false);
-      state.tarefasConcluidasNaSemana = 0;
-      state.progressoAtual = 0;
-      state.presentesDesbloqueados = [false, false, false];
-      state.presentesAbertos = [false, false, false];
-      
-      progresso.value = 0;
-      
-      const dropdownContent = document.getElementById('tasksDropdown');
-      const novasTarefasHTML = tarefasPorSemana[state.semanaAtual]
-        .map((tarefa, index) => `
-          <label class="checkbox-task">
-            <input type="checkbox" onchange="concluirTarefa(this, ${index})" />
-            <span>${tarefa}</span>
-          </label>
-        `).join('');
-      
-      dropdownContent.querySelector('.questsInAndament').innerHTML = novasTarefasHTML;
-      
-      document.querySelectorAll('.presente').forEach(presente => {
-        presente.src = "assets/balao_surpresa.png";
-        presente.classList.remove('presente-desbloqueado');
-      });
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
